@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { PRODUCTS, HERO_IMAGES } from '../assets/assets.js'; // Correct path
+import { PRODUCTS, HERO_IMAGES } from '../data/assets.js'; // Correct path
 
 const StoreContext = createContext();
 
