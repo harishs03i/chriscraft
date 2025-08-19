@@ -1,6 +1,6 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { PRODUCTS, HERO_IMAGES } from '../Assets/Assets.js'
+import { PRODUCTS, HERO_IMAGES } from '../assets/assets.js'
 const StoreContext = createContext()
 export function StoreProvider({children}){
   const [products, setProducts] = useState(()=> JSON.parse(localStorage.getItem('cc_products')||'null') || PRODUCTS)

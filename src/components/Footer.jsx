@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Instagram } from "lucide-react";
-import { MessageCircle } from "lucide-react"; // WhatsApp style icon
+import { Instagram, MessageCircle } from "lucide-react";
+
+// ✅ Import the logo from assets (make sure folder is lowercase: assets)
+import logo from "../assets/logo.jpg";
 
 export default function Footer() {
   return (
     <footer className="mt-10 border-t bg-black text-white">
       <div className="container mx-auto px-4 py-8 grid gap-6 md:grid-cols-3">
+        
         {/* Left Section with Logo */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -16,7 +19,7 @@ export default function Footer() {
         >
           {/* Small Logo */}
           <img
-            src="/src/Assets/Logo.jpg"
+            src={logo}
             alt="ChrisCraft Logo"
             className="w-12 h-12 rounded-full object-cover"
           />
@@ -39,15 +42,13 @@ export default function Footer() {
               +91 96009 10881
             </a>
           </p>
-            
-             <p>
+
+          <p>
             Contact:{" "}
-            <a className="underline" href="tel:+919600910881">
+            <a className="underline" href="tel:+91944210881">
               +91 94442 10881
             </a>
           </p>
-
-
         </motion.div>
 
         {/* Right Section with Socials */}
