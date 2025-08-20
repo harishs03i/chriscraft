@@ -1,13 +1,30 @@
 import { useState, useEffect } from "react";
 import { useStore } from "../Store/StoreContext.jsx";
 
-const ADMIN_USER = "admin";
-const ADMIN_PASS = "1234";
+// ✅ Import hero images from src/Assets
+import Hero1 from "../Assets/Hero1.jpg";
+import Hero2 from "../Assets/Hero2.jpg";
+import Hero3 from "../Assets/Hero3.jpg";
+const ADMIN_USER = "chriscraft";
+const ADMIN_PASS = "chris123";
+
+const isValidHeroUrl = (url) => {
+  return (
+    url &&
+    (url.startsWith("blob:") ||
+      url.startsWith("http") ||
+      url.startsWith("data:") ||
+      url.startsWith("/") ||
+      url.includes("Assets"))
+  );
+};
 
 export default function Admin() {
   const { products, setProducts, hero, setHero } = useStore();
 
-  const [localHero, setLocalHero] = useState(hero);
+  const defaultHeroImages = [Hero1, Hero2, Hero3];
+
+  const [localHero, setLocalHero] = useState([]);
   const [isAuth, setIsAuth] = useState(false);
   const [creds, setCreds] = useState({ user: "", pass: "" });
 
@@ -21,17 +38,22 @@ export default function Admin() {
     bestseller: false,
   });
 
-  // Load data from localStorage
+  // Load from localStorage
   useEffect(() => {
     const savedProducts = JSON.parse(localStorage.getItem("products"));
     const savedHero = JSON.parse(localStorage.getItem("hero"));
 
     if (savedProducts) setProducts(savedProducts);
-    if (savedHero) setHero(savedHero);
-    setLocalHero(savedHero || []);
+
+    const combinedHero = [
+      ...defaultHeroImages,
+      ...(Array.isArray(savedHero) ? savedHero : []),
+    ].filter(isValidHeroUrl);
+
+    setHero(combinedHero);
+    setLocalHero(combinedHero);
   }, []);
 
-  // Save to localStorage on change
   useEffect(() => {
     localStorage.setItem("products", JSON.stringify(products));
     localStorage.setItem("hero", JSON.stringify(hero));
@@ -79,7 +101,6 @@ export default function Admin() {
 
     setProducts([newItem, ...products]);
 
-    // reset form
     setNewProduct({
       images: [],
       name: "",
@@ -98,12 +119,16 @@ export default function Admin() {
   };
 
   const saveHero = () => {
-    setHero(localHero);
+    const filtered = localHero.filter(isValidHeroUrl);
+    setHero(filtered);
+    localStorage.setItem("hero", JSON.stringify(filtered));
   };
 
   const addHero = () => {
     const url = prompt("Image URL:");
-    if (url) setLocalHero([...localHero, url]);
+    if (url && isValidHeroUrl(url)) {
+      setLocalHero([...localHero, url]);
+    }
   };
 
   const removeHero = (idx) => {
@@ -175,11 +200,11 @@ export default function Admin() {
             <div key={idx} className="p-3 border rounded space-y-2">
               <img src={h} className="w-full h-32 object-cover rounded" />
               <input
-                value={localHero[idx]}
+                value={h}
                 onChange={(e) => {
-                  const next = [...localHero];
-                  next[idx] = e.target.value;
-                  setLocalHero(next);
+                  const updated = [...localHero];
+                  updated[idx] = e.target.value;
+                  setLocalHero(updated);
                 }}
                 className="w-full px-2 py-1 border rounded text-sm"
               />
@@ -303,7 +328,10 @@ export default function Admin() {
 
         <div className="grid md:grid-cols-2 gap-3">
           {products.map((p) => (
-            <div key={p.id} className="p-3 border rounded flex gap-3 items-start">
+            <div
+              key={p.id}
+              className="p-3 border rounded flex gap-3 items-start"
+            >
               <img src={p.img} className="h-16 w-16 rounded object-cover" />
               <div className="flex-1">
                 <div className="font-medium">{p.title}</div>
