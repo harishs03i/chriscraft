@@ -1,27 +1,17 @@
-/* Section.jsx */
-export default function Section({
-  title,
-  subtitle = "",
-  children,
-  action = null,
-  className = "",
-}) {
+
+export default function Section({title, subtitle, children, action}){
   return (
-    <section className={`py-12 md:py-16 ${className}`}>
+    <section className="py-12 md:py-16">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+        <div className="flex items-end justify-between mb-6">
           <div>
-            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
-              {title}
-            </h2>
-            {subtitle && (
-              <p className="text-gray-500 text-sm md:text-base">{subtitle}</p>
-            )}
+            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">{title}</h2>
+            {subtitle && <p className="text-gray-500">{subtitle}</p>}
           </div>
-          {action && <div className="shrink-0">{action}</div>}
+          {action}
         </div>
-        <div>{children}</div>
+        {children}
       </div>
     </section>
-  );
+  )
 }

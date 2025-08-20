@@ -4,9 +4,6 @@ import { useTheme } from "../Store/ThemeContext.jsx";
 import { useStore } from "../Store/StoreContext.jsx";
 import { Search, Heart, MapPin, X } from "lucide-react"; // icons
 
-// ✅ Import logo properly (make sure file is in src/assets/logo.jpg)
-import logo from "../assets/logo.jpg";
-
 // Drawer Component
 function Drawer({ open, onClose, side = "right", children }) {
   return (
@@ -115,10 +112,10 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* ✅ Fixed Logo */}
+          {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <img
-              src={logo}
+              src="/src/Assets/Logo.jpg"
               alt="Logo"
               className="h-10 w-10 rounded-full object-cover shadow-md group-hover:scale-105 transition"
             />
@@ -174,7 +171,7 @@ export default function Navbar() {
                     className="flex w-full items-center gap-3 p-3 hover:bg-gray-50 text-left transition"
                   >
                     <img
-                      src={r.img} // ✅ Make sure product.img is stored in public/ or imported
+                      src={r.img}
                       alt={r.title}
                       className="h-12 w-12 rounded object-cover"
                     />
@@ -192,77 +189,81 @@ export default function Navbar() {
         </div>
       </TopDropdown>
 
-      {/* ❤️ Favourites Drawer */}
-      <Drawer open={favOpen} onClose={() => setFavOpen(false)} side="right">
-        <div className="flex items-center justify-between mb-5 border-b pb-3 text-white">
-          <h3 className="text-lg font-semibold">Favourites</h3>
-          <button
-            onClick={() => setFavOpen(false)}
-            className="p-2 rounded-full hover:bg-white/20 transition"
-            title="Close"
-          >
-            <X size={20} className="text-black" />
-          </button>
-        </div>
+     {/* ❤️ Favourites Drawer */}
+<Drawer open={favOpen} onClose={() => setFavOpen(false)} side="right">
+  {/* Drawer Header */}
+  <div className="flex items-center justify-between mb-5 border-b pb-3 text-white">
+    <h3 className="text-lg font-semibold">Favourites</h3>
+    <button
+      onClick={() => setFavOpen(false)}
+      className="p-2 rounded-full hover:bg-white/20 transition"
+      title="Close"
+    >
+      <X size={20} className="text-black" /> {/* White close icon */}
+    </button>
+  </div>
 
-        {favourites.length === 0 ? (
-          <p className="text-sm text-gray-300">No favourites yet.</p>
-        ) : (
-          <div className="space-y-3">
-            {favourites.map((id) => {
-              const product = products.find((p) => p.id === id);
-              if (!product) return null;
-              return (
-                <div
-                  key={id}
-                  className="flex items-center gap-3 p-3 bg-white/10 rounded-lg hover:bg-white/20 transition"
-                >
-                  <img
-                    src={product.img} // ✅ Same rule: keep product.img inside public/ or import
-                    alt={product.title}
-                    className="h-12 w-12 rounded object-cover shadow"
-                  />
-                  <div className="flex-1 text-white">
-                    <div className="font-medium">{product.title}</div>
-                    <div className="text-xs text-gray-300">{product.type}</div>
-                  </div>
-                  <button
-                    onClick={() => removeFavourite(id)}
-                    className="text-xs text-red-400 hover:text-red-500"
-                  >
-                    Remove
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </Drawer>
-
-      {/* 📱 Mobile Menu Drawer */}
-      <Drawer open={menuOpen} onClose={() => setMenuOpen(false)} side="left">
-        <div className="flex items-center justify-between mb-5 text-white">
-          <h3 className="text-lg font-semibold">Menu</h3>
-          <button
-            onClick={() => setMenuOpen(false)}
-            className="p-2 rounded-full hover:bg-white/20 transition"
+  {/* Drawer Content */}
+  {favourites.length === 0 ? (
+    <p className="text-sm text-gray-300">No favourites yet.</p>
+  ) : (
+    <div className="space-y-3">
+      {favourites.map((id) => {
+        const product = products.find((p) => p.id === id);
+        if (!product) return null;
+        return (
+          <div
+            key={id}
+            className="flex items-center gap-3 p-3 bg-white/10 rounded-lg hover:bg-white/20 transition"
           >
-            <X size={20} className="text-white" />
-          </button>
-        </div>
-        <nav className="flex flex-col gap-4 font-medium">
-          {["Home", "Collection", "About Us"].map((item) => (
-            <NavLink
-              key={item}
-              to={item === "Home" ? "/" : `/${item.toLowerCase().replace(" ", "")}`}
-              onClick={() => setMenuOpen(false)}
-              className="text-gray-200 hover:text-pink-400 transition"
+            <img
+              src={product.img}
+              alt={product.title}
+              className="h-12 w-12 rounded object-cover shadow"
+            />
+            <div className="flex-1 text-white">
+              <div className="font-medium">{product.title}</div>
+              <div className="text-xs text-gray-300">{product.type}</div>
+            </div>
+            <button
+              onClick={() => removeFavourite(id)}
+              className="text-xs text-red-400 hover:text-red-500"
             >
-              {item}
-            </NavLink>
-          ))}
-        </nav>
-      </Drawer>
+              Remove
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  )}
+</Drawer>
+
+
+{/* 📱 Mobile Menu Drawer */}
+<Drawer open={menuOpen} onClose={() => setMenuOpen(false)} side="left">
+  <div className="flex items-center justify-between mb-5 text-white">
+    <h3 className="text-lg font-semibold">Menu</h3>
+    <button
+      onClick={() => setMenuOpen(false)}
+      className="p-2 rounded-full hover:bg-white/20 transition"
+    >
+      <X size={20} className="text-white" />
+    </button>
+  </div>
+  <nav className="flex flex-col gap-4 font-medium">
+    {["Home", "Collection", "About Us"].map((item) => (
+      <NavLink
+        key={item}
+        to={item === "Home" ? "/" : `/${item.toLowerCase().replace(" ", "")}`}
+        onClick={() => setMenuOpen(false)}
+        className="text-gray-200 hover:text-pink-400 transition"
+      >
+        {item}
+      </NavLink>
+    ))}
+  </nav>
+</Drawer>
+
     </header>
   );
 }
