@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Instagram, MessageCircle } from "lucide-react";
 
 // ✅ Import the logo from assets (make sure folder is lowercase: assets)
-import logo from "../assets/logo.jpg";
+import logo from "<div styleName={} ../assets/Logo.jpg";
 
 export default function Footer() {
   return (
