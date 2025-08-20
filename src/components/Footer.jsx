@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Instagram } from "lucide-react";
 import { MessageCircle } from "lucide-react"; // WhatsApp style icon
+import Logo from '../Assets/Logo.jpg'; 
 
 export default function Footer() {
   return (
@@ -16,7 +17,7 @@ export default function Footer() {
         >
           {/* Small Logo */}
           <img
-            src="/src/Assets/Logo.jpg"
+            src={Logo}
             alt="ChrisCraft Logo"
             className="w-12 h-12 rounded-full object-cover"
           />
