@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useTheme } from "../Store/ThemeContext.jsx";
 import { useStore } from "../Store/StoreContext.jsx";
 import { Search, Heart, MapPin, X } from "lucide-react"; // icons
-
+import Logo from '../Assets/Logo.jpg'
 // Drawer Component
 function Drawer({ open, onClose, side = "right", children }) {
   return (
@@ -115,7 +115,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <img
-              src="/src/Assets/Logo.jpg"
+              src={Logo}
               alt="Logo"
               className="h-10 w-10 rounded-full object-cover shadow-md group-hover:scale-105 transition"
             />
