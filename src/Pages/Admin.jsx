@@ -6,11 +6,11 @@ const ADMIN_PASS = "1234";
 
 export default function Admin() {
   const { products, setProducts, hero, setHero } = useStore();
+
   const [localHero, setLocalHero] = useState(hero);
   const [isAuth, setIsAuth] = useState(false);
   const [creds, setCreds] = useState({ user: "", pass: "" });
 
-  // new product state (removed subCategory)
   const [newProduct, setNewProduct] = useState({
     images: [],
     name: "",
@@ -21,13 +21,17 @@ export default function Admin() {
     bestseller: false,
   });
 
+  // Load data from localStorage
   useEffect(() => {
     const savedProducts = JSON.parse(localStorage.getItem("products"));
     const savedHero = JSON.parse(localStorage.getItem("hero"));
+
     if (savedProducts) setProducts(savedProducts);
     if (savedHero) setHero(savedHero);
+    setLocalHero(savedHero || []);
   }, []);
 
+  // Save to localStorage on change
   useEffect(() => {
     localStorage.setItem("products", JSON.stringify(products));
     localStorage.setItem("hero", JSON.stringify(hero));
@@ -47,7 +51,7 @@ export default function Admin() {
     );
   };
 
-  const handleFileUpload = (e) => {
+  const handleProductImageUpload = (e) => {
     const files = Array.from(e.target.files);
     const urls = files.map((file) => URL.createObjectURL(file));
     setNewProduct({ ...newProduct, images: urls });
@@ -59,21 +63,22 @@ export default function Admin() {
       alert("Please enter product name and price");
       return;
     }
-    setProducts([
-      {
-        id,
-        title: newProduct.name,
-        description: newProduct.description,
-        category: newProduct.category,
-        img: newProduct.images[0] || "/placeholder.png",
-        images: newProduct.images,
-        sizes: newProduct.sizes,
-        price: newProduct.price,
-        bestseller: newProduct.bestseller,
-        newArrival: false,
-      },
-      ...products,
-    ]);
+
+    const newItem = {
+      id,
+      title: newProduct.name,
+      description: newProduct.description,
+      category: newProduct.category,
+      img: newProduct.images[0] || "/placeholder.png",
+      images: newProduct.images,
+      sizes: newProduct.sizes,
+      price: newProduct.price,
+      bestseller: newProduct.bestseller,
+      newArrival: false,
+    };
+
+    setProducts([newItem, ...products]);
+
     // reset form
     setNewProduct({
       images: [],
@@ -92,13 +97,23 @@ export default function Admin() {
     }
   };
 
-  const saveHero = () => setHero(localHero);
+  const saveHero = () => {
+    setHero(localHero);
+  };
+
   const addHero = () => {
     const url = prompt("Image URL:");
     if (url) setLocalHero([...localHero, url]);
   };
+
   const removeHero = (idx) => {
     setLocalHero(localHero.filter((_, i) => i !== idx));
+  };
+
+  const handleHeroFileUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setLocalHero([...localHero, ...urls]);
   };
 
   if (!isAuth) {
@@ -135,16 +150,26 @@ export default function Admin() {
       <h1 className="text-3xl font-semibold">Admin Panel</h1>
 
       {/* Hero Section */}
-      <section className="space-y-3">
+      <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Hero Images</h2>
-          <button
-            onClick={addHero}
-            className="px-3 py-2 rounded bg-black text-white"
-          >
-            Add Hero
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={addHero}
+              className="px-3 py-2 rounded bg-black text-white"
+            >
+              Add via URL
+            </button>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleHeroFileUpload}
+              className="text-sm"
+            />
+          </div>
         </div>
+
         <div className="grid md:grid-cols-3 gap-4">
           {localHero.map((h, idx) => (
             <div key={idx} className="p-3 border rounded space-y-2">
@@ -167,6 +192,7 @@ export default function Admin() {
             </div>
           ))}
         </div>
+
         <button
           onClick={saveHero}
           className="px-3 py-2 rounded bg-green-600 text-white"
@@ -176,15 +202,14 @@ export default function Admin() {
       </section>
 
       {/* Product Section */}
-      <section className="space-y-3">
+      <section className="space-y-4">
         <h2 className="text-xl font-semibold">Add Product</h2>
         <div className="p-4 border rounded space-y-3">
-          {/* Image Upload */}
           <input
             type="file"
             multiple
             accept="image/*"
-            onChange={handleFileUpload}
+            onChange={handleProductImageUpload}
           />
           <div className="flex gap-2">
             {newProduct.images.map((img, idx) => (
@@ -200,8 +225,11 @@ export default function Admin() {
             placeholder="Product Name"
             className="w-full px-3 py-2 border rounded"
             value={newProduct.name}
-            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, name: e.target.value })
+            }
           />
+
           <textarea
             placeholder="Product Description"
             className="w-full px-3 py-2 border rounded"
@@ -210,6 +238,7 @@ export default function Admin() {
               setNewProduct({ ...newProduct, description: e.target.value })
             }
           />
+
           <div className="flex gap-3">
             <select
               value={newProduct.category}
@@ -223,6 +252,7 @@ export default function Admin() {
               <option>stripes</option>
               <option>print</option>
             </select>
+
             <input
               type="number"
               placeholder="Price"
@@ -233,6 +263,7 @@ export default function Admin() {
               }
             />
           </div>
+
           <div className="flex gap-2">
             {["S", "M", "L", "XL", "XXL"].map((size) => (
               <label key={size} className="flex items-center gap-1">
@@ -250,6 +281,7 @@ export default function Admin() {
               </label>
             ))}
           </div>
+
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -260,6 +292,7 @@ export default function Admin() {
             />
             Add to Bestseller
           </label>
+
           <button
             onClick={addProduct}
             className="px-4 py-2 bg-black text-white rounded"
@@ -268,13 +301,9 @@ export default function Admin() {
           </button>
         </div>
 
-        {/* Existing Products */}
         <div className="grid md:grid-cols-2 gap-3">
           {products.map((p) => (
-            <div
-              key={p.id}
-              className="p-3 border rounded flex gap-3 items-start"
-            >
+            <div key={p.id} className="p-3 border rounded flex gap-3 items-start">
               <img src={p.img} className="h-16 w-16 rounded object-cover" />
               <div className="flex-1">
                 <div className="font-medium">{p.title}</div>
@@ -282,13 +311,14 @@ export default function Admin() {
                 <div className="text-sm text-gray-600 mt-1 blur-sm select-none">
                   ₹ {p.price}
                 </div>
+
                 <div className="flex gap-2 mt-2">
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
                       checked={p.bestseller}
                       onChange={() => toggleFlag(p.id, "bestseller")}
-                    />{" "}
+                    />
                     Bestseller
                   </label>
                   <label className="flex items-center gap-2 text-sm">
@@ -296,10 +326,11 @@ export default function Admin() {
                       type="checkbox"
                       checked={p.newArrival}
                       onChange={() => toggleFlag(p.id, "newArrival")}
-                    />{" "}
+                    />
                     New Arrival
                   </label>
                 </div>
+
                 <button
                   onClick={() => removeProduct(p.id)}
                   className="text-red-600 text-sm mt-2"
