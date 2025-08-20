@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 export default function Collection() {
   const { products } = useStore()
   const [cat, setCat] = useState('')
+  const [type, setType] = useState('') // Subcategory/type filter
   const [size, setSize] = useState('')
 
   // Extract unique categories dynamically
@@ -15,6 +16,14 @@ export default function Collection() {
       .map((p) => p.category?.trim())
       .filter(Boolean)
     return [...new Set(cats)]
+  }, [products])
+
+  // Extract unique types dynamically
+  const types = useMemo(() => {
+    const allTypes = products
+      .map((p) => p.type?.trim())
+      .filter(Boolean)
+    return [...new Set(allTypes)]
   }, [products])
 
   // Extract unique sizes dynamically
@@ -28,15 +37,15 @@ export default function Collection() {
     if (!cat && categories.length > 0) setCat(categories[0])
   }, [categories, cat])
 
-  // Filtering products by category and size safely
+  // Filtering products by category, type, and size safely
   const list = useMemo(() => {
     return products.filter((p) => {
-      const type = p.category?.toLowerCase() || ''
-      const matchCat = cat ? type === cat.toLowerCase() : true
+      const matchCat = cat ? (p.category?.toLowerCase() === cat.toLowerCase()) : true
+      const matchType = type ? (p.type?.toLowerCase() === type.toLowerCase()) : true
       const matchSize = size ? p.sizes?.includes(size) : true
-      return matchCat && matchSize
+      return matchCat && matchType && matchSize
     })
-  }, [products, cat, size])
+  }, [products, cat, type, size])
 
   return (
     <motion.div
@@ -49,8 +58,9 @@ export default function Collection() {
         subtitle="Browse by fabric / pattern"
         className="text-center"
       >
-        {/* Category and Size Filters */}
+        {/* Category, Type, and Size Filters */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+
           {/* Categories */}
           <div className="flex gap-2 flex-wrap justify-center">
             {categories.map((c) => (
@@ -66,6 +76,25 @@ export default function Collection() {
                 }`}
               >
                 {c}
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Types / Subcategories */}
+          <div className="flex gap-2 flex-wrap justify-center">
+            {types.map((t) => (
+              <motion.button
+                key={t}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setType(t === type ? '' : t)} // toggle
+                className={`px-3 py-1 rounded-full border font-medium transition-colors ${
+                  type === t
+                    ? 'bg-gray-700 text-white'
+                    : 'bg-gray-100 hover:bg-indigo-100 text-gray-700'
+                }`}
+              >
+                {t}
               </motion.button>
             ))}
           </div>
@@ -88,6 +117,7 @@ export default function Collection() {
               </motion.button>
             ))}
           </div>
+
         </div>
 
         {/* Products Grid */}
