@@ -30,6 +30,7 @@ export default function Admin() {
   const [creds, setCreds] = useState({ user: "", pass: "" });
 
   const [newProduct, setNewProduct] = useState({
+    id: "", // ✅ allow manual ID
     images: [],
     name: "",
     description: "",
@@ -37,7 +38,7 @@ export default function Admin() {
     price: "",
     sizes: [],
     bestseller: false,
-    sold: false, // ✅ New field
+    sold: false,
   });
 
   // Load from localStorage
@@ -69,7 +70,6 @@ export default function Admin() {
     }
   };
 
-  // ✅ Fixed toggleFlag to ensure proper id-based update
   const toggleFlag = (id, key) => {
     setProducts((prev) =>
       prev.map((p) =>
@@ -85,14 +85,18 @@ export default function Admin() {
   };
 
   const addProduct = () => {
-    const id = Date.now().toString();
     if (!newProduct.name || !newProduct.price) {
       alert("Please enter product name and price");
       return;
     }
 
+    if (!newProduct.id) {
+      alert("Please enter a product ID");
+      return;
+    }
+
     const newItem = {
-      id,
+      id: newProduct.id, // ✅ take manual ID
       title: newProduct.name,
       description: newProduct.description,
       category: newProduct.category,
@@ -102,12 +106,13 @@ export default function Admin() {
       price: newProduct.price,
       bestseller: newProduct.bestseller,
       newArrival: false,
-      sold: newProduct.sold, // ✅ Added sold status
+      sold: newProduct.sold,
     };
 
     setProducts([newItem, ...products]);
 
     setNewProduct({
+      id: "",
       images: [],
       name: "",
       description: "",
@@ -148,7 +153,6 @@ export default function Admin() {
     setLocalHero([...localHero, ...urls]);
   };
 
-  // ✅ Update product ID manually
   const updateProductId = (oldId, newId) => {
     setProducts((prev) =>
       prev.map((p) =>
@@ -263,6 +267,13 @@ export default function Admin() {
           </div>
 
           <input
+            placeholder="Product ID"
+            className="w-full px-3 py-2 border rounded"
+            value={newProduct.id}
+            onChange={(e) => setNewProduct({ ...newProduct, id: e.target.value })}
+          />
+
+          <input
             placeholder="Product Name"
             className="w-full px-3 py-2 border rounded"
             value={newProduct.name}
@@ -349,7 +360,7 @@ export default function Admin() {
             onClick={addProduct}
             className="px-4 py-2 bg-black text-white rounded"
           >
-            Add Product
+            Add Products
           </button>
         </div>
 
@@ -364,13 +375,14 @@ export default function Admin() {
                 <div className="font-medium">{p.title}</div>
                 <div className="text-xs text-gray-500">{p.category}</div>
 
-                {/* ✅ Editable Product ID */}
+                {/* Editable Product ID */}
                 <input
                   value={p.id}
                   onChange={(e) => updateProductId(p.id, e.target.value)}
                   className="w-full px-2 py-1 border rounded text-xs mt-1"
                 />
 
+                {/* ✅ Blur Price */}
                 <div className="text-sm text-gray-600 mt-1 blur-sm select-none">
                   ₹ {p.price}
                 </div>

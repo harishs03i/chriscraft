@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../Store/StoreContext.jsx";
 
-// ✅ WhatsApp message builder (no price, bestseller, newArrival, soldout)
+// ✅ WhatsApp message builder (no price included)
 function waLink(p) {
   const msg = encodeURIComponent(
     `Hi, I'm interested in the following product 👇
@@ -12,11 +12,11 @@ function waLink(p) {
 📏 Sizes: ${p.sizes.join(", ")}
 📝 Description: ${p.description}
 
-🖼️ Image: ${window.location.origin}${p.img}
+🖼️ Image: ${p.img}
 
 👉 Please share the price and more details.`
   );
-  return `https://wa.me/919600910881?text=${msg}`; // Replace with your WhatsApp number
+  return `https://wa.me/919600910881?text=${msg}`;
 }
 
 export default function ProductCard({ p }) {
@@ -35,8 +35,9 @@ export default function ProductCard({ p }) {
 
       <div className="relative">
         <img
-          src={p.img}
+          src={p.img} // ✅ works if p.img is a full URL from admin uploads
           alt={p.title}
+          onError={(e) => (e.currentTarget.src = "/fallback.png")} // ✅ fallback if broken
           className={`w-full aspect-[4/3] object-cover ${
             p.sold ? "opacity-50" : ""
           }`}
@@ -57,14 +58,17 @@ export default function ProductCard({ p }) {
         <p className="text-sm text-gray-500">Sizes: {p.sizes.join(", ")}</p>
 
         <div className="flex items-center justify-between pt-2">
-          {/* Price (blurred) */}
+          {/* Price (blurred, click → WhatsApp) */}
           {!p.sold ? (
             <span
               title="Click to reveal price on WhatsApp"
               className="relative text-lg font-semibold cursor-pointer select-none"
               onClick={() => window.open(waLink(p), "_blank")}
             >
-              <span className="blur-sm">₹{p.price}</span>
+              {/* Blurred price */}
+              <span className="blur-sm group-hover:blur-md">₹{p.price}</span>
+              
+              {/* Overlay text on hover */}
               <span className="absolute left-0 top-0 w-full h-full flex items-center justify-center text-gray-700 font-medium opacity-0 hover:opacity-100 transition">
                 Tap to Reveal
               </span>
