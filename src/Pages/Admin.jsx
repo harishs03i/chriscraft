@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useStore } from "../Store/StoreContext.jsx";
 
-// ✅ Import hero images from src/Assets
+// ✅ Import default hero images from src/Assets
 import Hero1 from "../Assets/Hero1.jpg";
 import Hero2 from "../Assets/Hero2.jpg";
 import Hero3 from "../Assets/Hero3.jpg";
@@ -9,16 +9,13 @@ import Hero3 from "../Assets/Hero3.jpg";
 const ADMIN_USER = "chriscraft";
 const ADMIN_PASS = "chris123";
 
-const isValidHeroUrl = (url) => {
-  return (
-    url &&
-    (url.startsWith("blob:") ||
-      url.startsWith("http") ||
-      url.startsWith("data:") ||
-      url.startsWith("/") ||
-      url.includes("Assets"))
-  );
-};
+const isValidHeroUrl = (url) =>
+  url &&
+  (url.startsWith("blob:") ||
+    url.startsWith("http") ||
+    url.startsWith("data:") ||
+    url.startsWith("/") ||
+    url.includes("Assets"));
 
 export default function Admin() {
   const { products, setProducts, hero, setHero } = useStore();
@@ -30,14 +27,16 @@ export default function Admin() {
   const [creds, setCreds] = useState({ user: "", pass: "" });
 
   const [newProduct, setNewProduct] = useState({
-    id: "", // ✅ allow manual ID
+    id: "",
     images: [],
+    colors: [], // ✅ multiple color options
     name: "",
     description: "",
     category: "plain",
     price: "",
     sizes: [],
     bestseller: false,
+    newArrival: false,
     sold: false,
   });
 
@@ -78,10 +77,33 @@ export default function Admin() {
     );
   };
 
+  // ✅ Upload multiple product images
   const handleProductImageUpload = (e) => {
     const files = Array.from(e.target.files);
     const urls = files.map((file) => URL.createObjectURL(file));
-    setNewProduct({ ...newProduct, images: urls });
+    setNewProduct({ ...newProduct, images: [...newProduct.images, ...urls] });
+  };
+
+  // ✅ Add new color option
+  const addColor = () => {
+    const colorName = prompt("Enter color name:");
+    if (!colorName) return;
+
+    setNewProduct({
+      ...newProduct,
+      colors: [...newProduct.colors, { name: colorName, images: [] }],
+    });
+  };
+
+  // ✅ Upload images for a color
+  const handleColorImageUpload = (e, colorIndex) => {
+    const files = Array.from(e.target.files);
+    const urls = files.map((file) => URL.createObjectURL(file));
+
+    const updatedColors = [...newProduct.colors];
+    updatedColors[colorIndex].images.push(...urls);
+
+    setNewProduct({ ...newProduct, colors: updatedColors });
   };
 
   const addProduct = () => {
@@ -96,16 +118,17 @@ export default function Admin() {
     }
 
     const newItem = {
-      id: newProduct.id, // ✅ take manual ID
+      id: newProduct.id,
       title: newProduct.name,
       description: newProduct.description,
       category: newProduct.category,
       img: newProduct.images[0] || "/placeholder.png",
       images: newProduct.images,
+      colors: newProduct.colors,
       sizes: newProduct.sizes,
       price: newProduct.price,
       bestseller: newProduct.bestseller,
-      newArrival: false,
+      newArrival: newProduct.newArrival,
       sold: newProduct.sold,
     };
 
@@ -114,12 +137,14 @@ export default function Admin() {
     setNewProduct({
       id: "",
       images: [],
+      colors: [],
       name: "",
       description: "",
       category: "plain",
       price: "",
       sizes: [],
       bestseller: false,
+      newArrival: false,
       sold: false,
     });
   };
@@ -250,13 +275,14 @@ export default function Admin() {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Add Product</h2>
         <div className="p-4 border rounded space-y-3">
+          {/* General Images */}
           <input
             type="file"
             multiple
             accept="image/*"
             onChange={handleProductImageUpload}
           />
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {newProduct.images.map((img, idx) => (
               <img
                 key={idx}
@@ -264,6 +290,39 @@ export default function Admin() {
                 className="w-16 h-16 rounded object-cover"
               />
             ))}
+          </div>
+
+          {/* Colors Section */}
+          <div>
+            <h3 className="font-medium mb-2">Available Colours</h3>
+            <button
+              onClick={addColor}
+              className="px-2 py-1 bg-blue-600 text-white text-sm rounded"
+            >
+              + Add Colour
+            </button>
+            <div className="space-y-3 mt-2">
+              {newProduct.colors.map((c, idx) => (
+                <div key={idx} className="border rounded p-2 space-y-2">
+                  <div className="font-medium">{c.name}</div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleColorImageUpload(e, idx)}
+                  />
+                  <div className="flex gap-2 flex-wrap">
+                    {c.images.map((img, i) => (
+                      <img
+                        key={i}
+                        src={img}
+                        className="w-12 h-12 rounded object-cover"
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <input
@@ -334,27 +393,40 @@ export default function Admin() {
             ))}
           </div>
 
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={newProduct.bestseller}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, bestseller: e.target.checked })
-              }
-            />
-            Add to Bestseller
-          </label>
+          <div className="flex flex-wrap gap-4">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={newProduct.bestseller}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, bestseller: e.target.checked })
+                }
+              />
+              Bestseller
+            </label>
 
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={newProduct.sold}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, sold: e.target.checked })
-              }
-            />
-            Mark as Sold Out
-          </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={newProduct.newArrival}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, newArrival: e.target.checked })
+                }
+              />
+              New Arrival
+            </label>
+
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={newProduct.sold}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, sold: e.target.checked })
+                }
+              />
+              Sold Out
+            </label>
+          </div>
 
           <button
             onClick={addProduct}
@@ -364,6 +436,7 @@ export default function Admin() {
           </button>
         </div>
 
+        {/* Existing Products */}
         <div className="grid md:grid-cols-2 gap-3">
           {products.map((p) => (
             <div
@@ -413,6 +486,20 @@ export default function Admin() {
                     Sold Out
                   </label>
                 </div>
+
+                {/* Colors Preview */}
+                {p.colors?.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {p.colors.map((c, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 text-xs bg-gray-200 rounded"
+                      >
+                        {c.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 <button
                   onClick={() => removeProduct(p.id)}

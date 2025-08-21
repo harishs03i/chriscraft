@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../Store/StoreContext.jsx";
+import { useState } from "react";
 
 // ✅ WhatsApp message builder (no price included)
 function waLink(p) {
@@ -24,6 +25,12 @@ export default function ProductCard({ p }) {
   const { addFavourite, favourites, removeFavourite } = useStore();
   const fav = favourites.includes(p.id);
 
+  // ✅ Track selected color & image index
+  const [selectedColor, setSelectedColor] = useState(p.colors?.[0] || null);
+  const [mainImg, setMainImg] = useState(
+    p.images?.[0] || p.img // fallback to single img
+  );
+
   return (
     <div className="group rounded-2xl border overflow-hidden hover:shadow-lg transition relative">
       {/* SOLD OUT Overlay */}
@@ -33,13 +40,14 @@ export default function ProductCard({ p }) {
         </div>
       )}
 
-      <div className="relative">
+      {/* Product Image with Zoom Effect */}
+      <div className="relative overflow-hidden">
         <img
-          src={p.img} // ✅ works if p.img is a full URL from admin uploads
+          src={mainImg}
           alt={p.title}
-          onError={(e) => (e.currentTarget.src = "/fallback.png")} // ✅ fallback if broken
-          className={`w-full aspect-[4/3] object-cover ${
-            p.sold ? "opacity-50" : ""
+          onError={(e) => (e.currentTarget.src = "/fallback.png")}
+          className={`w-full aspect-[4/3] object-cover transition-transform duration-300 ${
+            p.sold ? "opacity-50" : "group-hover:scale-110"
           }`}
         />
 
@@ -57,6 +65,42 @@ export default function ProductCard({ p }) {
         <p className="text-sm text-gray-500">Type: {p.type}</p>
         <p className="text-sm text-gray-500">Sizes: {p.sizes.join(", ")}</p>
 
+        {/* ✅ Color Selector */}
+        {p.colors?.length > 0 && (
+          <div className="flex items-center gap-2">
+            {p.colors.map((clr) => (
+              <button
+                key={clr.name}
+                onClick={() => {
+                  setSelectedColor(clr.name);
+                  setMainImg(clr.img || mainImg);
+                }}
+                className={`w-6 h-6 rounded-full border-2 ${
+                  selectedColor === clr.name ? "border-black" : "border-gray-300"
+                }`}
+                style={{ backgroundColor: clr.hex }}
+              ></button>
+            ))}
+          </div>
+        )}
+
+        {/* ✅ Thumbnails for multiple images */}
+        {p.images?.length > 1 && (
+          <div className="flex gap-2 mt-2">
+            {p.images.map((img, i) => (
+              <img
+                key={i}
+                src={img}
+                alt={`${p.title}-${i}`}
+                onClick={() => setMainImg(img)}
+                className={`w-12 h-12 object-cover rounded cursor-pointer border ${
+                  mainImg === img ? "border-black" : "border-gray-300"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
         <div className="flex items-center justify-between pt-2">
           {/* Price (blurred, click → WhatsApp) */}
           {!p.sold ? (
@@ -65,10 +109,7 @@ export default function ProductCard({ p }) {
               className="relative text-lg font-semibold cursor-pointer select-none"
               onClick={() => window.open(waLink(p), "_blank")}
             >
-              {/* Blurred price */}
               <span className="blur-sm group-hover:blur-md">₹{p.price}</span>
-              
-              {/* Overlay text on hover */}
               <span className="absolute left-0 top-0 w-full h-full flex items-center justify-center text-gray-700 font-medium opacity-0 hover:opacity-100 transition">
                 Tap to Reveal
               </span>
