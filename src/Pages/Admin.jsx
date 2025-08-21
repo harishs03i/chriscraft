@@ -148,6 +148,15 @@ export default function Admin() {
     setLocalHero([...localHero, ...urls]);
   };
 
+  // ✅ Update product ID manually
+  const updateProductId = (oldId, newId) => {
+    setProducts((prev) =>
+      prev.map((p) =>
+        String(p.id) === String(oldId) ? { ...p, id: newId } : p
+      )
+    );
+  };
+
   if (!isAuth) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -354,6 +363,14 @@ export default function Admin() {
               <div className="flex-1">
                 <div className="font-medium">{p.title}</div>
                 <div className="text-xs text-gray-500">{p.category}</div>
+
+                {/* ✅ Editable Product ID */}
+                <input
+                  value={p.id}
+                  onChange={(e) => updateProductId(p.id, e.target.value)}
+                  className="w-full px-2 py-1 border rounded text-xs mt-1"
+                />
+
                 <div className="text-sm text-gray-600 mt-1 blur-sm select-none">
                   ₹ {p.price}
                 </div>
