@@ -26,22 +26,22 @@ export default function Collection() {
 
   // ✅ Extract unique categories
   const categories = useMemo(() => {
-    return [...new Set(products.map((p) => p.category?.trim()).filter(Boolean))]
+    return Array.from(new Set(products.map((p) => p.category?.trim()).filter(Boolean)))
   }, [products])
 
   // ✅ Extract unique types
   const types = useMemo(() => {
-    return [...new Set(products.map((p) => p.type?.trim()).filter(Boolean))]
+    return Array.from(new Set(products.map((p) => p.type?.trim()).filter(Boolean)))
   }, [products])
 
   // ✅ Extract unique sizes
   const sizes = useMemo(() => {
-    return [...new Set(products.flatMap((p) => p.sizes || [])).filter(Boolean)]
+    return Array.from(new Set(products.flatMap((p) => p.sizes || []).filter(Boolean)))
   }, [products])
 
   // ✅ Extract unique colors
   const colors = useMemo(() => {
-    return [...new Set(products.map((p) => p.color?.trim()).filter(Boolean))]
+    return Array.from(new Set(products.map((p) => p.color?.trim()).filter(Boolean)))
   }, [products])
 
   // ✅ Set default category
