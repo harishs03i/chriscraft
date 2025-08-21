@@ -1,18 +1,20 @@
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../Store/StoreContext.jsx'
 
-// ✅ WhatsApp message builder
+// ✅ WhatsApp message builder (sends product id, name, image)
 function waLink(p) {
   const msg = encodeURIComponent(
-    `Hi, I'm interested in product *${p.title}* 
-ID: ${p.id} 
-Category: ${p.category}
+    `Hi, I'm interested in the following product 👇
 
-Please share the price and details.
+🆔 ID: ${p.id}
+📦 Name: ${p.title}
+📂 Category: ${p.category}
 
-Image: ${window.location.origin}${p.img}`
+🖼️ Image: ${window.location.origin}${p.img}
+
+👉 Please share the price and more details.`
   )
-  return `https://wa.me/919600910881?text=${msg}` // Your WhatsApp number
+  return `https://wa.me/919600910881?text=${msg}` // Replace with your WhatsApp number
 }
 
 export default function ProductCard({ p }) {
@@ -55,14 +57,17 @@ export default function ProductCard({ p }) {
         <p className="text-sm text-gray-500">Sizes: {p.sizes.join(', ')}</p>
 
         <div className="flex items-center justify-between pt-2">
-          {/* Hidden Price → Redirects to WhatsApp */}
+          {/* Price (blurred) */}
           {!p.sold ? (
             <span
-              title="Tap to reveal on WhatsApp"
-              className="price-blur text-lg font-semibold cursor-pointer select-none"
+              title="Click to reveal price on WhatsApp"
+              className="relative text-lg font-semibold cursor-pointer select-none"
               onClick={() => window.open(waLink(p), '_blank')}
             >
-              Tap to Reveal
+              <span className="blur-sm group-hover:blur-md">₹{p.price}</span>
+              <span className="absolute left-0 top-0 w-full h-full flex items-center justify-center text-gray-700 font-medium opacity-0 hover:opacity-100 transition">
+                Tap to Reveal
+              </span>
             </span>
           ) : (
             <span className="text-red-600 font-semibold">Unavailable</span>

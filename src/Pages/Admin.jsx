@@ -69,9 +69,12 @@ export default function Admin() {
     }
   };
 
+  // ✅ Fixed toggleFlag to ensure proper id-based update
   const toggleFlag = (id, key) => {
-    setProducts(
-      products.map((p) => (p.id === id ? { ...p, [key]: !p[key] } : p))
+    setProducts((prev) =>
+      prev.map((p) =>
+        String(p.id) === String(id) ? { ...p, [key]: !p[key] } : p
+      )
     );
   };
 
@@ -118,7 +121,7 @@ export default function Admin() {
 
   const removeProduct = (id) => {
     if (confirm("Remove this product?")) {
-      setProducts(products.filter((p) => p.id !== id));
+      setProducts(products.filter((p) => String(p.id) !== String(id)));
     }
   };
 
